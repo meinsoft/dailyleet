@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - DailyLeet Blog{% endblock %}
+
+{% block meta_description %}{{ post.excerpt }}{% endblock %}
+
+{% block content %}
+<article class="min-h-screen bg-gradient-to-b from-black to-deep-blue">
+    <!-- Header -->
+    <header class="pt-24 pb-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="text-sm mb-8">
+                <ol class="flex items-center space-x-2 text-gray-400">
+                    <li><a href="{% url 'core:home' %}" class="hover:text-white transition-colors">Home</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li><a href="{% url 'blog:list' %}" class="hover:text-white transition-colors">Blog</a></li>
+                    {% if post.category %}
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li><a href="{% url 'blog:category' post.category.slug %}" class="hover:text-white transition-colors">{{ post.category.name }}</a></li>
+                    {% endif %}
+                </ol>
+            </nav>
+            
+            <div class="animate-fade-in">
+                {% if post.category %}
+                <span class="text-accent-blue text-sm font-semibold uppercase tracking-wide mb-4 block">
+                    {{ post.category.name }}
+                </span>
+                {% endif %}
+                
+                <h1 class="text-4xl md:text-6xl font-bold text-gradient font-display mb-8 leading-tight">
+                    {{ post.title }}
+                </h1>
+                
+                <div class="flex items-center gap-8 text-gray-400 text-sm mb-8">
+                    <span><i class="fas fa-calendar mr-2"></i>{{ post.published_at|date:"F d, Y" }}</span>
+                    <span><i class="fas fa-clock mr-2"></i>{{ post.reading_time }} min read</span>
+                    <span><i class="fas fa-eye mr-2"></i>{{ post.view_count }} views</span>
+                </div>
+                
+                <div class="text-xl text-gray-300 leading-relaxed font-light">
+                    {{ post.excerpt }}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <section class="pb-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-effect rounded-2xl p-8 md:p-12">
+                <div class="prose prose-xl prose-invert max-w-none">
+                    {{ post.html_content|safe }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Posts -->
+    {% if related_posts %}
+    <section class="pb-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-t border-gray-800 pt-16">
+                <h2 class="text-3xl font-bold text-white mb-12 text-center">Related Posts</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {% for related in related_posts %}
+                    <article class="glass-effect rounded-xl p-6 hover-lift group">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-semibold text-white group-hover:text-accent-blue-light transition-colors duration-300 mb-3 line-clamp-2">
+                                <a href="{{ related.get_absolute_url }}" class="block">{{ related.title }}</a>
+                            </h3>
+                            <p class="text-gray-400 text-sm line-clamp-3">{{ related.excerpt|truncatewords:20 }}</p>
+                        </div>
+                        
+                        <div class="flex items-center justify-between text-xs text-gray-400 pt-4 border-t border-gray-700">
+                            <span>{{ related.published_at|date:"M d" }}</span>
+                            <span>{{ related.reading_time }} min</span>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Navigation -->
+    <section class="pb-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
+                <a href="{% url 'blog:list' %}" class="inline-flex items-center text-gray-400 hover:text-white transition-colors font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to All Posts
+                </a>
+                
+                <div class="flex items-center gap-4">
+                    <span class="text-gray-400 text-sm">Share this post:</span>
+                    <div class="flex gap-3">
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ post.title|urlencode }}" 
+                           target="_blank" 
+                           class="text-gray-400 hover:text-white transition-colors p-2">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
+                           target="_blank" 
+                           class="text-gray-400 hover:text-white transition-colors p-2">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <button onclick="copyUrl()" class="text-gray-400 hover:text-white transition-colors p-2">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</article>
+
+<!-- Copy Success Toast -->
+<div id="copy-toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-full transition-transform duration-300 z-50">
+    <i class="fas fa-check mr-2"></i>Link copied to clipboard!
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Enhanced prose styles for blog content */
+.prose {
+    color: #e2e8f0;
+    line-height: 1.8;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    color: #ffffff;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.prose h1 { font-size: 2.25rem; }
+.prose h2 { font-size: 2rem; }
+.prose h3 { font-size: 1.75rem; }
+.prose h4 { font-size: 1.5rem; }
+
+.prose p {
+    margin-bottom: 1.5rem;
+    color: #cbd5e1;
+}
+
+.prose a {
+    color: #3b82f6;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.prose a:hover {
+    color: #60a5fa;
+}
+
+.prose ul, .prose ol {
+    margin: 1.5rem 0;
+    padding-left: 1.5rem;
+    color: #cbd5e1;
+}
+
+.prose li {
+    margin-bottom: 0.5rem;
+}
+
+.prose blockquote {
+    border-left: 4px solid #1e40af;
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-style: italic;
+    color: #94a3b8;
+    background: rgba(30, 64, 175, 0.1);
+    padding: 1rem 1.5rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.prose pre {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    overflow-x: auto;
+    margin: 2rem 0;
+}
+
+.prose code {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.prose pre code {
+    background: none;
+    padding: 0;
+}
+
+.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+}
+
+.prose th, .prose td {
+    border: 1px solid #374151;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.prose th {
+    background: #1f2937;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.prose img {
+    border-radius: 0.5rem;
+    margin: 2rem 0;
+    max-width: 100%;
+    height: auto;
+}
+
+.prose hr {
+    border: none;
+    border-top: 1px solid #374151;
+    margin: 3rem 0;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyUrl() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        showCopyToast();
+    }).catch(function(err) {
+        console.error('Could not copy URL: ', err);
+    });
+}
+
+function showCopyToast() {
+    const toast = document.getElementById('copy-toast');
+    toast.classList.remove('translate-y-full');
+    
+    setTimeout(() => {
+        toast.classList.add('translate-y-full');
+    }, 2000);
+}
+
+// Initialize Prism.js for code highlighting in content
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Prism !== 'undefined') {
+        Prism.highlightAll();
+    }
+});
+</script>
+{% endblock %}

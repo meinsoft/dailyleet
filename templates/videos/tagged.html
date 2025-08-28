@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tag.name }} Videos - DailyLeet{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-b from-black to-deep-blue">
+    <!-- Header -->
+    <section class="pt-20 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <nav class="text-sm mb-4">
+                    <ol class="flex items-center justify-center space-x-2 text-gray-400">
+                        <li><a href="{% url 'core:home' %}" class="hover:text-white transition-colors">Home</a></li>
+                        <li><i class="fas fa-chevron-right text-xs"></i></li>
+                        <li><a href="{% url 'videos:list' %}" class="hover:text-white transition-colors">Videos</a></li>
+                        <li><i class="fas fa-chevron-right text-xs"></i></li>
+                        <li class="text-white">{{ tag.name }}</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="text-4xl md:text-5xl font-bold text-gradient font-display mb-4">
+                    {{ tag.name|title }} Videos
+                </h1>
+
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    All videos tagged with <span class="text-accent-blue-light font-semibold">{{ tag.name }}</span>
+                </p>
+            </div>
+            
+            <!-- Filter Tags -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12">
+                <a href="{% url 'videos:list' %}" class="px-4 py-2 rounded-full border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 transition-all duration-300 text-sm font-medium">
+                    All Videos
+                </a>
+                {% for t in all_tags %}
+                <a href="{% url 'videos:tagged' t.slug %}" class="px-4 py-2 rounded-full border transition-all duration-300 text-sm font-medium
+                   {% if t.slug == tag.slug %}
+                   bg-accent-blue text-white border-accent-blue
+                   {% else %}
+                   border-gray-600 text-gray-300 hover:text-white hover:border-gray-400
+                   {% endif %}">
+                    {{ t.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Videos Grid -->
+    <section class="pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {% if videos %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {% for video in videos %}
+                <div class="glass-effect rounded-xl overflow-hidden hover-lift group animate-fade-in">
+                    <div class="relative">
+                        <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}" 
+                             class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                        
+                        <!-- Difficulty Badge -->
+                        <div class="absolute top-3 left-3">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                       {% if video.difficulty == 'easy' %}bg-green-500 text-green-100
+                                       {% elif video.difficulty == 'medium' %}bg-yellow-500 text-yellow-100
+                                       {% else %}bg-red-500 text-red-100{% endif %}">
+                                {{ video.get_difficulty_display }}
+                            </span>
+                        </div>
+                        
+                        <!-- Views -->
+                        <div class="absolute top-3 right-3">
+                            <div class="bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
+                                <i class="fas fa-eye mr-1"></i>{{ video.view_count }}
+                            </div>
+                        </div>
+                        
+                        <!-- Play Button -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="bg-accent-blue bg-opacity-80 text-white p-3 rounded-full">
+                                <i class="fas fa-play text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5">
+                        <h3 class="text-lg font-semibold mb-2 text-white group-hover:text-accent-blue-light transition-colors duration-300 line-clamp-2">
+                            <a href="{{ video.get_absolute_url }}" class="block">{{ video.title }}</a>
+                        </h3>
+                        
+                        <p class="text-gray-400 text-sm mb-4 line-clamp-2">{{ video.description|truncatewords:15 }}</p>
+                        
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            {% for video_tag in video.tags.all|slice:":2" %}
+                            <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                       {% if video_tag.slug == tag.slug %}bg-accent-blue text-white
+                                       {% else %}bg-slate text-gray-300{% endif %}">
+                                {{ video_tag.name }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Meta Info -->
+                        <div class="flex items-center justify-between text-xs text-gray-400">
+                            <span>{{ video.created_at|date:"M d" }}</span>
+                            {% if video.leetcode_problem_number %}
+                            <span class="font-medium">#{{ video.leetcode_problem_number }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="flex justify-center mt-12">
+                <nav class="flex items-center space-x-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 rounded-lg border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 transition-all duration-300">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="px-4 py-2 rounded-lg bg-accent-blue text-white font-semibold">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}" class="px-4 py-2 rounded-lg border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 transition-all duration-300">{{ num }}</a>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 rounded-lg border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 transition-all duration-300">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-20">
+                <div class="text-6xl text-gray-600 mb-4">
+                    <i class="fas fa-video-slash"></i>
+                </div>
+                <h3 class="text-2xl font-semibold text-gray-400 mb-2">No videos found for "{{ tag.name }}"</h3>
+                <p class="text-gray-500 mb-8">Try browsing other categories or check back later for new content.</p>
+                <a href="{% url 'videos:list' %}" class="inline-flex items-center text-accent-blue-light hover:text-white font-semibold transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to All Videos
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}

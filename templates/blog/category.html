@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - DailyLeet Blog{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-b from-black to-deep-blue">
+    <!-- Header -->
+    <section class="pt-20 pb-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="text-sm mb-8">
+                <ol class="flex items-center justify-center space-x-2 text-gray-400">
+                    <li><a href="{% url 'core:home' %}" class="hover:text-white transition-colors">Home</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li><a href="{% url 'blog:list' %}" class="hover:text-white transition-colors">Blog</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li class="text-white">{{ category.name }}</li>
+                </ol>
+            </nav>
+            
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gradient font-display mb-6">
+                    {{ category.name }}
+                </h1>
+                {% if category.description %}
+                <p class="text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
+                    {{ category.description }}
+                </p>
+                {% else %}
+                <p class="text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
+                    All posts in the <span class="text-accent-blue-light font-semibold">{{ category.name }}</span> category
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Filter -->
+    <section class="pb-8">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="{% url 'blog:list' %}" class="px-4 py-2 rounded-full border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 transition-all duration-300 text-sm font-medium">
+                    All Posts
+                </a>
+                {% for cat in all_categories %}
+                <a href="{% url 'blog:category' cat.slug %}" class="px-4 py-2 rounded-full border transition-all duration-300 text-sm font-medium
+                   {% if cat.slug == category.slug %}
+                   bg-accent-blue text-white border-accent-blue
+                   {% else %}
+                   border-gray-600 text-gray-300 hover:text-white hover:border-gray-400
+                   {% endif %}">
+                    {{ cat.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Posts -->
+    <section class="pb-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            {% if posts %}
+            <div class="space-y-12">
+                {% for post in posts %}
+                <article class="group">
+                    <a href="{{ post.get_absolute_url }}" class="block">
+                        <div class="glass-effect rounded-2xl p-8 md:p-10 hover-lift">
+                            <div class="flex flex-col">
+                                <span class="text-accent-blue text-sm font-semibold uppercase tracking-wide mb-3">
+                                    {{ category.name }}
+                                </span>
+                                
+                                <h2 class="text-3xl md:text-4xl font-bold text-white group-hover:text-accent-blue-light transition-colors duration-300 mb-4 leading-tight">
+                                    {{ post.title }}
+                                </h2>
+                                
+                                <p class="text-xl text-gray-300 leading-relaxed mb-6 line-clamp-3">
+                                    {{ post.excerpt }}
+                                </p>
+                                
+                                <div class="flex items-center justify-between text-gray-400">
+                                    <div class="flex items-center space-x-6 text-sm">
+                                        <span><i class="fas fa-calendar mr-2"></i>{{ post.published_at|date:"F d, Y" }}</span>
+                                        <span><i class="fas fa-clock mr-2"></i>{{ post.reading_time }} min read</span>
+                                        <span><i class="fas fa-eye mr-2"></i>{{ post.view_count }} views</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center text-accent-blue-light group-hover:text-white transition-colors">
+                                        <span class="font-medium mr-2">Read More</span>
+                                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="flex justify-center mt-16">
+                <nav class="flex items-center space-x-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 rounded-lg border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 transition-all duration-300">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="px-4 py-2 rounded-lg bg-accent-blue text-white font-semibold">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}" class="px-4 py-2 rounded-lg border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 transition-all duration-300">{{ num }}</a>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 rounded-lg border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 transition-all duration-300">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-20">
+                <div class="text-6xl text-gray-600 mb-6">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <h3 class="text-3xl font-semibold text-gray-400 mb-4">No posts in "{{ category.name }}"</h3>
+                <p class="text-gray-500 text-lg mb-8">This category doesn't have any posts yet. Check back later!</p>
+                <a href="{% url 'blog:list' %}" class="inline-flex items-center text-accent-blue-light hover:text-white font-semibold transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to All Posts
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}

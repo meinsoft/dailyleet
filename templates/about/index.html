@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}About Me - DailyLeet{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-b from-black to-deep-blue">
+    <!-- Hero Section -->
+    <section class="pt-24 pb-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="order-2 lg:order-1">
+                    <div class="animate-fade-in">
+                        <h1 class="text-4xl md:text-6xl font-bold text-gradient font-display mb-6 leading-tight">
+                            Hello, I'm
+                            <span class="block text-accent-blue-light">
+                                {% if profile %}{{ profile.name }}{% else %}Your Name{% endif %}
+                            </span>
+                        </h1>
+                        
+                        <div class="text-2xl text-gray-300 font-light mb-8">
+                            {% if profile %}{{ profile.title }}{% else %}Software Engineer & Algorithm Enthusiast{% endif %}
+                        </div>
+                        
+                        <p class="text-xl text-gray-400 leading-relaxed mb-8">
+                            {% if profile %}
+                                {{ profile.bio|truncatewords:50 }}
+                            {% else %}
+                                Passionate about solving complex problems through code, sharing knowledge through 
+                                teaching, and helping others master algorithms and data structures for technical interviews.
+                            {% endif %}
+                        </p>
+                        
+                        <!-- Social Links -->
+                        <div class="flex items-center gap-6">
+                            {% if profile.github_url %}
+                            <a href="{{ profile.github_url }}" target="_blank" class="text-gray-400 hover:text-white transition-colors text-2xl">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            {% endif %}
+                            {% if profile.linkedin_url %}
+                            <a href="{{ profile.linkedin_url }}" target="_blank" class="text-gray-400 hover:text-white transition-colors text-2xl">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            {% endif %}
+                            {% if profile.youtube_url %}
+                            <a href="{{ profile.youtube_url }}" target="_blank" class="text-gray-400 hover:text-white transition-colors text-2xl">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            {% endif %}
+                            {% if profile.twitter_url %}
+                            <a href="{{ profile.twitter_url }}" target="_blank" class="text-gray-400 hover:text-white transition-colors text-2xl">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            {% endif %}
+                            {% if profile.email %}
+                            <a href="mailto:{{ profile.email }}" class="text-gray-400 hover:text-white transition-colors text-2xl">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-1 lg:order-2 flex justify-center lg:justify-end">
+                    <div class="relative">
+                        {% if profile and profile.profile_image %}
+                        <img src="{{ profile.profile_image.url }}" alt="{{ profile.name }}" 
+                             class="w-80 h-80 lg:w-96 lg:h-96 object-cover rounded-2xl shadow-2xl">
+                        {% else %}
+                        <div class="w-80 h-80 lg:w-96 lg:h-96 bg-gradient-to-br from-accent-blue to-accent-blue-light rounded-2xl shadow-2xl flex items-center justify-center">
+                            <i class="fas fa-user text-8xl text-white opacity-50"></i>
+                        </div>
+                        {% endif %}
+                        <div class="absolute -inset-4 bg-gradient-to-r from-accent-blue to-accent-blue-light rounded-2xl blur opacity-20 -z-10"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="py-20 bg-gradient-to-b from-deep-blue to-black">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gradient font-display mb-6">My Journey</h2>
+                <p class="text-xl text-gray-400">From curiosity to expertise, here's how I got here</p>
+            </div>
+            
+            <div class="glass-effect rounded-2xl p-8 md:p-12">
+                <div class="prose prose-xl prose-invert max-w-none">
+                    {% if profile and profile.bio %}
+                        <p class="text-gray-300 leading-relaxed text-lg whitespace-pre-line">{{ profile.bio }}</p>
+                    {% else %}
+                        <p class="text-gray-300 leading-relaxed text-lg mb-6">
+                            My programming journey started with a simple "Hello, World!" program that sparked a lifelong passion for 
+                            problem-solving and creating elegant solutions. What began as curiosity evolved into a deep understanding 
+                            of algorithms, data structures, and software engineering principles.
+                        </p>
+                        
+                        <p class="text-gray-300 leading-relaxed text-lg mb-6">
+                            Over the years, I've solved hundreds of LeetCode problems, built countless projects, and learned that 
+                            the most rewarding part of coding isn't just solving problems—it's sharing that knowledge with others. 
+                            That's what drove me to create DailyLeet.
+                        </p>
+                        
+                        <p class="text-gray-300 leading-relaxed text-lg">
+                            Through my videos and blog posts, I break down complex algorithms into understandable concepts, 
+                            share different approaches to problem-solving, and help fellow developers prepare for technical interviews. 
+                            My goal is to make algorithm learning accessible, engaging, and practical for everyone.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    {% if experiences %}
+    <section class="py-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gradient font-display mb-6">Experience</h2>
+                <p class="text-xl text-gray-400">My professional journey through the tech industry</p>
+            </div>
+            
+            <div class="space-y-8">
+                {% for experience in experiences %}
+                <div class="glass-effect rounded-xl p-8 hover-lift">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-2">{{ experience.position }}</h3>
+                            <div class="text-accent-blue-light font-semibold text-lg">{{ experience.company }}</div>
+                        </div>
+                        <div class="text-gray-400 md:text-right mt-2 md:mt-0">
+                            <div class="font-medium">
+                                {{ experience.start_date|date:"M Y" }} - 
+                                {% if experience.is_current %}Present{% else %}{{ experience.end_date|date:"M Y" }}{% endif %}
+                            </div>
+                            {% if experience.is_current %}
+                            <span class="inline-block px-2 py-1 text-xs font-medium bg-green-500 text-green-100 rounded-full mt-1">
+                                Current
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">{{ experience.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Skills Section -->
+    {% if skills_by_category %}
+    <section class="py-20 bg-gradient-to-b from-black to-deep-blue">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gradient font-display mb-6">Skills & Technologies</h2>
+                <p class="text-xl text-gray-400">The tools and technologies I work with</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for category_name, category_skills in skills_by_category.items %}
+                {% if category_skills %}
+                <div class="glass-effect rounded-xl p-8">
+                    <h3 class="text-xl font-bold text-white mb-6 capitalize">
+                        {% if category_name == 'languages' %}Programming Languages
+                        {% elif category_name == 'frameworks' %}Frameworks & Libraries
+                        {% elif category_name == 'tools' %}Tools & Technologies
+                        {% elif category_name == 'databases' %}Databases
+                        {% else %}{{ category_name|title }}
+                        {% endif %}
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        {% for skill in category_skills %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                {% if skill.icon %}
+                                <i class="{{ skill.icon }} text-accent-blue-light text-xl"></i>
+                                {% endif %}
+                                <span class="text-gray-300 font-medium">{{ skill.name }}</span>
+                            </div>
+                            <div class="text-sm text-gray-400">{{ skill.proficiency }}%</div>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-accent-blue to-accent-blue-light h-2 rounded-full transition-all duration-1000" 
+                                 style="width: {{ skill.proficiency }}%"></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    
+
+    <!-- Contact Section -->
+    <section class="py-20 bg-gradient-to-b from-deep-blue to-black">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-gradient font-display mb-6">Let's Connect</h2>
+            <p class="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+                Have questions about algorithms? Want to collaborate? Or just want to say hello? 
+                I'd love to hear from you!
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                {% if profile.email %}
+                <a href="mailto:{{ profile.email }}" class="bg-accent-blue hover:bg-accent-blue-light text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 hover-lift">
+                    <i class="fas fa-envelope mr-2"></i>
+                    Get in Touch
+                </a>
+                {% endif %}
+                
+                {% if profile.resume_file %}
+                <a href="{{ profile.resume_file.url }}" target="_blank" class="border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 px-8 py-4 rounded-lg font-semibold transition-all duration-300 hover-lift">
+                    <i class="fas fa-download mr-2"></i>
+                    Download Resume
+                </a>
+                {% endif %}
+            </div>
+            
+            <!-- Social Links -->
+            <div class="flex justify-center gap-6 mt-12">
+                {% if profile.github_url %}
+                <a href="{{ profile.github_url }}" target="_blank" class="text-gray-400 hover:text-white transition-colors text-3xl hover-lift">
+                    <i class="fab fa-github"></i>
+                </a>
+                {% endif %}
+                {% if profile.linkedin_url %}
+                <a href="{{ profile.linkedin_url }}" target="_blank" class="text-gray-400 hover:text-white transition-colors text-3xl hover-lift">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                {% endif %}
+                {% if profile.youtube_url %}
+                <a href="{{ profile.youtube_url }}" target="_blank" class="text-gray-400 hover:text-white transition-colors text-3xl hover-lift">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                {% endif %}
+                {% if profile.twitter_url %}
+                <a href="{{ profile.twitter_url }}" target="_blank" class="text-gray-400 hover:text-white transition-colors text-3xl hover-lift">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
